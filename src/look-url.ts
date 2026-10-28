@@ -2,7 +2,13 @@ import { homeLook } from './settings';
 import type { FilterId, Look, PaletteId } from './types';
 
 const FILTERS: readonly FilterId[] = ['ascii', 'dither'];
-const PALETTES: readonly PaletteId[] = ['original', 'moss', 'ember', 'tide', 'ink'];
+const PALETTES: readonly PaletteId[] = ['original', 'meadow', 'blue', 'amber', 'lavender', 'mono'];
+const PALETTE_ALIASES: Readonly<Record<string, PaletteId>> = {
+  moss: 'meadow',
+  ember: 'amber',
+  tide: 'blue',
+  ink: 'mono',
+};
 
 export function readLook(search: string): Look | null {
   const params = new URLSearchParams(search);
@@ -12,7 +18,7 @@ export function readLook(search: string): Look | null {
   const fallback = homeLook();
   return {
     filter: oneOf(params.get('filter'), FILTERS, fallback.filter),
-    palette: oneOf(params.get('palette'), PALETTES, fallback.palette),
+    palette: paletteOf(params.get('palette'), fallback.palette),
     strength: unit(params.get('strength'), fallback.strength),
     size: unit(params.get('size'), fallback.size),
   };
@@ -30,6 +36,11 @@ export function publishLook(look: Look): string {
     history.replaceState(null, '', next);
   }
   return url.toString();
+}
+
+function paletteOf(value: string | null, fallback: PaletteId): PaletteId {
+  const normalized = value?.trim().toLowerCase() ?? '';
+  return oneOf(normalized, PALETTES, PALETTE_ALIASES[normalized] ?? fallback);
 }
 
 function oneOf<T extends string>(value: string | null, allowed: readonly T[], fallback: T): T {

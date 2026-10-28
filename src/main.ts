@@ -59,16 +59,11 @@ const art = document.querySelector<HTMLElement>('#art');
 const mount = document.querySelector<HTMLElement>('#effect-panel');
 const chat = document.querySelector<HTMLElement>('#chat');
 const fileInput = document.querySelector<HTMLInputElement>('#wallpaper-file');
-const focusToggle = document.querySelector<HTMLButtonElement>('#focus-toggle');
-const focusExit = document.querySelector<HTMLButtonElement>('#focus-exit');
-const wallpaperName = document.querySelector<HTMLElement>('#wallpaper-name');
 
-if (!stage || !photo || !video || !canvas || !art || !mount || !chat || !fileInput || !focusToggle || !focusExit) {
+if (!stage || !photo || !video || !canvas || !art || !mount || !chat || !fileInput) {
   throw new Error('Studio markup is missing.');
 }
 
-const focusButton: HTMLButtonElement = focusToggle;
-const focusClose: HTMLButtonElement = focusExit;
 const artPhoto: HTMLImageElement = photo;
 const artVideo: HTMLVideoElement = video;
 const artFrame: HTMLElement = art;
@@ -93,6 +88,11 @@ const panel = new EffectPanel(mount, {
     publishLook(panel.getLook());
   },
   onUpload() {
+    const customIndex = wallpapers.findIndex((item) => item.custom);
+    if (customIndex >= 0 && customIndex !== index) {
+      void showWallpaper(customIndex);
+      return;
+    }
     fileInput.click();
   },
   onExport() {
@@ -101,11 +101,8 @@ const panel = new EffectPanel(mount, {
   onCopyLink() {
     void copyLink();
   },
-  onFocus() {
-    setFocus(!document.body.classList.contains('is-focus'));
-  },
-  onWallpaper(index) {
-    void showWallpaper(index);
+  onWallpaper(next) {
+    void showWallpaper(next);
   },
 });
 bindChat(chatEntry);
@@ -120,9 +117,17 @@ let customUrl: string | null = null;
 
 function syncChips(): void {
   panel.setWallpapers(
-    wallpapers.map((item) => ({ label: item.label, thumb: item.thumb })),
+    wallpapers.flatMap((item, itemIndex) =>
+      item.custom ? [] : [{ label: item.label, thumb: item.thumb, index: itemIndex }],
+    ),
     index,
   );
+  const custom = wallpapers.find((item) => item.custom);
+  const current = wallpapers[index];
+  panel.setUpload({
+    active: Boolean(current?.custom),
+    thumb: custom?.thumb ?? '',
+  });
 }
 
 async function showWallpaper(next: number, force = false): Promise<void> {
@@ -132,7 +137,6 @@ async function showWallpaper(next: number, force = false): Promise<void> {
   const request = ++requestId;
   const item = wallpapers[index];
   syncChips();
-  if (wallpaperName) wallpaperName.textContent = item.label;
   if (item.kind === 'video') await showVideo(item, request);
   else await showImage(item, request);
 }
@@ -169,7 +173,6 @@ async function showImage(item: Wallpaper, request: number): Promise<void> {
   }
   if (request !== requestId) return;
   layer.setSource(artPhoto);
-  panel.setAssetPreview(item.src);
 }
 
 function releaseVideo(): void {
@@ -197,7 +200,6 @@ function rememberPreview(element: HTMLVideoElement, request: number): void {
     if (request !== requestId) return;
     const preview = snapshotCover(element);
     if (!preview) return;
-    panel.setAssetPreview(preview);
     const current = wallpapers[index];
     if (current?.custom && current.kind === 'video') {
       current.thumb = preview;
@@ -285,33 +287,10 @@ async function copyLink(): Promise<void> {
   }
 }
 
-function setFocus(on: boolean): void {
-  document.body.classList.toggle('is-focus', on);
-  focusButton.textContent = on ? 'Done' : 'Focus';
-  focusButton.setAttribute('aria-pressed', String(on));
-  panel.setFocusPressed(on);
-  if (on && chatEntry.contains(document.activeElement)) focusButton.focus();
-  chatEntry.hidden = on;
-}
-
 fileInput.addEventListener('change', () => {
   const file = fileInput.files?.[0];
   fileInput.value = '';
   if (file) void useFile(file);
-});
-
-focusButton.addEventListener('click', () => {
-  setFocus(!document.body.classList.contains('is-focus'));
-});
-focusClose.addEventListener('click', (event) => {
-  event.stopPropagation();
-  setFocus(false);
-});
-
-window.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && document.body.classList.contains('is-focus')) {
-    setFocus(false);
-  }
 });
 
 stageFrame.addEventListener('dragover', (event) => {

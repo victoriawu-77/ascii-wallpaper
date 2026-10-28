@@ -1,6 +1,6 @@
 export type FilterId = 'ascii' | 'dither';
 
-export type PaletteId = 'original' | 'moss' | 'ember' | 'tide' | 'ink';
+export type PaletteId = 'original' | 'meadow' | 'blue' | 'amber' | 'lavender' | 'mono';
 
 /** Dark ink reads the shadows. Light ink reads the highlights. */
 export type InkTone = 'dark' | 'light';
@@ -26,7 +26,7 @@ export interface Look {
   size: number;
 }
 
-/** Slider drags stay live. Filter, palette, and preset changes cross-fade. */
+/** Slider drags stay live. Filter and palette changes cross-fade. */
 export type UpdateKind = 'continuous' | 'discrete';
 
 export interface Rgb {

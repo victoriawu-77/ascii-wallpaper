@@ -1,4 +1,4 @@
-import { PRESETS, homeSettings, presetById, presetMatching, SWATCHES } from '../settings';
+import { homeSettings, SWATCHES } from '../settings';
 import type { EffectSettings, FilterId, FilterSettings, Look, PaletteId, UpdateKind } from '../types';
 
 type SliderKey = 'strength' | 'size';
@@ -11,6 +11,12 @@ const SLIDERS: readonly { key: SliderKey; label: string }[] = [
 export interface WallpaperChip {
   label: string;
   thumb: string;
+  index: number;
+}
+
+export interface UploadState {
+  active: boolean;
+  thumb: string;
 }
 
 export interface PanelHooks {
@@ -18,7 +24,6 @@ export interface PanelHooks {
   onUpload: () => void;
   onExport: () => void;
   onCopyLink: () => void;
-  onFocus: () => void;
   onWallpaper: (index: number) => void;
 }
 
@@ -61,13 +66,6 @@ export class EffectPanel {
   }
 
   applyLook(look: Look): void {
-    const preset = presetMatching(look);
-    if (preset) {
-      this.writePreset(preset.id);
-      this.paint();
-      this.hooks.onChange(this.getSettings(), 'discrete');
-      return;
-    }
     this.filter = look.filter;
     const next = this.store[look.filter];
     next.palette = look.palette;
@@ -75,12 +73,6 @@ export class EffectPanel {
     next.size = look.size;
     this.paint();
     this.hooks.onChange(this.getSettings(), 'discrete');
-  }
-
-  setAssetPreview(url: string): void {
-    const swatch = this.root.querySelector<HTMLElement>('[data-palette="original"]');
-    if (!swatch) return;
-    swatch.style.backgroundImage = `url("${url}")`;
   }
 
   setStatus(message: string): void {
@@ -94,29 +86,26 @@ export class EffectPanel {
   }
 
   setWallpapers(items: readonly WallpaperChip[], activeIndex: number): void {
-    this.wallpaperItems = items.map((item) => ({ label: item.label, thumb: item.thumb }));
+    this.wallpaperItems = items.map((item) => ({ label: item.label, thumb: item.thumb, index: item.index }));
     this.wallpaperIndex = activeIndex;
     this.paintWallpapers();
   }
 
-  setFocusPressed(on: boolean): void {
-    const button = this.root.querySelector<HTMLButtonElement>('[data-action="focus"]');
-    if (!button) return;
-    button.textContent = on ? 'Done' : 'Focus';
-    button.setAttribute('aria-pressed', String(on));
+  setUpload(state: UploadState): void {
+    const button = this.root.querySelector<HTMLButtonElement>('[data-action="upload"]');
+    const thumb = button?.querySelector<HTMLElement>('.chip-thumb');
+    if (!button || !thumb) return;
+    button.setAttribute('aria-pressed', String(state.active));
+    if (state.thumb) {
+      thumb.style.backgroundImage = `url("${state.thumb.replace(/["\\]/g, '')}")`;
+      button.classList.add('has-thumb');
+    } else {
+      thumb.style.backgroundImage = '';
+      button.classList.remove('has-thumb');
+    }
   }
 
   private bind(): void {
-    this.root.querySelectorAll<HTMLButtonElement>('[data-preset]').forEach((button) => {
-      button.addEventListener('click', () => {
-        const id = button.dataset.preset;
-        if (!id || !presetById(id)) return;
-        this.writePreset(id);
-        this.paint();
-        this.hooks.onChange(this.getSettings(), 'discrete');
-      });
-    });
-
     this.root.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach((button) => {
       button.addEventListener('click', () => {
         const next = button.dataset.filter as FilterId;
@@ -191,21 +180,6 @@ export class EffectPanel {
     this.root.querySelector('[data-action="upload"]')?.addEventListener('click', () => this.hooks.onUpload());
     this.root.querySelector('[data-action="export"]')?.addEventListener('click', () => this.hooks.onExport());
     this.root.querySelector('[data-action="link"]')?.addEventListener('click', () => this.hooks.onCopyLink());
-    this.root.querySelector('[data-action="focus"]')?.addEventListener('click', () => this.hooks.onFocus());
-  }
-
-  private writePreset(id: string): void {
-    const preset = presetById(id);
-    if (!preset) return;
-    this.filter = preset.filter;
-    this.store[preset.filter] = {
-      mask: preset.mask,
-      palette: preset.palette,
-      inkTone: preset.inkTone,
-      strength: preset.strength,
-      size: preset.size,
-      spacing: preset.spacing,
-    };
   }
 
   private readPointer(key: SliderKey, track: HTMLElement, clientX: number): void {
@@ -221,7 +195,6 @@ export class EffectPanel {
     if (this.store[this.filter][key] === next) return;
     this.store[this.filter][key] = next;
     this.paintSlider(key, next);
-    this.paintPresets();
     this.hooks.onChange(this.getSettings(), 'continuous');
   }
 
@@ -237,18 +210,8 @@ export class EffectPanel {
       button.setAttribute('aria-checked', String(on));
       button.tabIndex = on ? 0 : -1;
     });
-    this.paintPresets();
     this.paintSlider('strength', settings.strength);
     this.paintSlider('size', settings.size);
-  }
-
-  private paintPresets(): void {
-    const match = presetMatching(this.getLook());
-    this.root.querySelectorAll<HTMLButtonElement>('[data-preset]').forEach((button) => {
-      const on = button.dataset.preset === match?.id;
-      button.setAttribute('aria-checked', String(on));
-      button.tabIndex = on ? 0 : -1;
-    });
   }
 
   private paintSlider(key: SliderKey, value: number): void {
@@ -269,13 +232,14 @@ export class EffectPanel {
     const group = this.root.querySelector<HTMLElement>('.wallpaper-chips');
     if (!group) return;
     group.replaceChildren(
-      ...this.wallpaperItems.map((item, itemIndex) => {
+      ...this.wallpaperItems.map((item) => {
         const button = document.createElement('button');
         button.type = 'button';
-        button.dataset.wallpaper = String(itemIndex);
+        button.dataset.wallpaper = String(item.index);
         button.setAttribute('role', 'radio');
-        button.setAttribute('aria-checked', String(itemIndex === this.wallpaperIndex));
-        button.tabIndex = itemIndex === this.wallpaperIndex ? 0 : -1;
+        const on = item.index === this.wallpaperIndex;
+        button.setAttribute('aria-checked', String(on));
+        button.tabIndex = on ? 0 : -1;
         const thumb = document.createElement('span');
         thumb.className = 'chip-thumb';
         thumb.setAttribute('aria-hidden', 'true');
@@ -291,10 +255,6 @@ export class EffectPanel {
 }
 
 function template(): string {
-  const presets = PRESETS.map(
-    (preset) =>
-      `<button type="button" role="radio" data-preset="${preset.id}" aria-checked="false">${preset.label}</button>`,
-  ).join('');
   const swatches = SWATCHES.map(
     (swatch) =>
       `<button type="button" class="swatch" role="radio" data-palette="${swatch.id}" aria-label="${swatch.label}" aria-checked="false"></button>`,
@@ -303,11 +263,17 @@ function template(): string {
     <div class="dock-panel">
       <div class="dock-row wallpaper-row">
         <span class="dock-label" id="label-wallpaper">Wallpaper</span>
-        <div class="wallpaper-chips" role="radiogroup" aria-labelledby="label-wallpaper" data-radios></div>
+        <div class="wallpaper-controls">
+          <div class="wallpaper-chips" role="radiogroup" aria-labelledby="label-wallpaper" data-radios></div>
+          <button type="button" class="upload-chip" data-action="upload" aria-pressed="false">
+            <span class="chip-thumb" aria-hidden="true"></span>
+            <span class="chip-label">Your file</span>
+          </button>
+        </div>
       </div>
       <div class="dock-row">
-        <div class="presets" role="radiogroup" aria-label="Presets" data-radios>${presets}</div>
-        <div class="segment" role="radiogroup" aria-label="Filter" data-radios>
+        <span class="dock-label" id="label-look">Look</span>
+        <div class="segment" role="radiogroup" aria-labelledby="label-look" data-radios>
           <button type="button" role="radio" data-filter="ascii" aria-checked="true">ASCII</button>
           <button type="button" role="radio" data-filter="dither" aria-checked="false">Dither</button>
         </div>
@@ -320,11 +286,12 @@ function template(): string {
         ${slider('strength', 'Strength')}
         ${slider('size', 'Size')}
       </div>
-      <div class="actions">
-        <button type="button" data-action="upload">Your file</button>
-        <button type="button" data-action="export">Save PNG</button>
-        <button type="button" data-action="link">Copy link</button>
-        <button type="button" data-action="focus" aria-pressed="false">Focus</button>
+      <div class="dock-row actions-row">
+        <span class="dock-label" id="label-actions">Actions</span>
+        <div class="actions">
+          <button type="button" data-action="export">Save PNG</button>
+          <button type="button" data-action="link">Copy link</button>
+        </div>
       </div>
       <p class="dock-status" id="dock-status" role="status"></p>
     </div>
