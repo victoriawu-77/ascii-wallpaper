@@ -596,11 +596,15 @@ input {
   }
 
   .composer {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
   }
 
-  .composer input {
-    flex-basis: 160px;
+  .chat-name {
+    font-size: 18px;
+  }
+
+  .send {
+    padding: 0 12px;
   }
 
   .caption {
