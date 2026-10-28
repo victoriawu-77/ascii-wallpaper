@@ -45,12 +45,15 @@ body {
   position: relative;
 }
 
+.frame {
+  position: relative;
+  z-index: 1;
+}
+
 .hero-bg {
   position: absolute;
-  top: -48px;
-  right: -48px;
-  left: -48px;
-  height: min(820px, 78vh);
+  z-index: 0;
+  inset: -48px;
   background-position: center;
   background-size: cover;
   filter: blur(28px) saturate(1.2) brightness(0.96);
@@ -357,6 +360,9 @@ body {
 }
 
 .dock {
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
   background: #111;
   padding: 28px 0 36px;
 }
@@ -665,6 +671,14 @@ body {
     width: calc(100% - 24px);
   }
 
+  .frame {
+    display: flex;
+    flex: 1 1 0px;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+
   .topbar {
     flex: 0 0 auto;
     margin: 6px auto 0;
@@ -715,6 +729,7 @@ body {
     flex: 0 0 auto;
     min-height: 0;
     overflow: visible;
+    background: #111;
     padding: 8px 0 calc(6px + env(safe-area-inset-bottom));
   }
 
