@@ -33,4 +33,6 @@ The dock runs in this order. Wallpaper is Meadow, Monarch, Portrait, Horizon, Wa
 
 Drop an image or video onto the window, or choose Your file. Save PNG downloads the current frame. Copy link writes filter, palette, strength, and size into the address bar so a refresh restores them.
 
+The window shows “Drawing…” on a paper field until the first effect frame is ready. A poster frame is drawn first, then the live video replaces it, so the raw picture does not sit on screen while the sample starts. On a narrow screen the canvas stays at one pixel per CSS pixel and video frames are sampled about ten times a second.
+
 While a video is playing and on screen, the effect samples each frame with `requestVideoFrameCallback`, or `requestAnimationFrame` when that callback does not arrive. Sampling pauses while the tab is hidden, the video is paused, or the stage is off screen. The video element stays under the canvas and is the source. Still images redraw when a control changes.

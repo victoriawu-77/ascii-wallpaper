@@ -26,6 +26,7 @@ body {
 button,
 input {
   font: inherit;
+  touch-action: manipulation;
 }
 
 .visually-hidden {
@@ -120,6 +121,8 @@ input {
   inset: 0;
   overflow: hidden;
   background: #efe8dc;
+  isolation: isolate;
+  transform: translateZ(0);
 }
 
 .art-photo,
@@ -130,6 +133,45 @@ input {
   width: 100%;
   height: 100%;
   pointer-events: none;
+}
+
+.art-video {
+  z-index: 0;
+}
+
+.effect-canvas {
+  z-index: 2;
+  background: #efe8dc;
+  transform: translateZ(0);
+}
+
+.veil {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: #efe8dc;
+  transform: translateZ(0);
+  pointer-events: none;
+}
+
+.drawing {
+  position: absolute;
+  z-index: 4;
+  left: 0;
+  right: 0;
+  bottom: 16px;
+  margin: 0;
+  color: #5e6b55;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: center;
+  pointer-events: none;
+}
+
+.art:not(.is-pending) .veil,
+.art:not(.is-pending) .drawing {
+  display: none;
 }
 
 .art-photo,
@@ -599,9 +641,22 @@ input {
 }
 
 @media (max-width: 860px) {
+  body {
+    height: 100dvh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
   .hero {
+    flex: 1 1 auto;
     min-height: 0;
-    padding: 14px 12px 24px;
+    padding: calc(8px + env(safe-area-inset-top)) 12px 8px;
+  }
+
+  .topbar {
+    padding-bottom: 8px;
   }
 
   .brand-note {
@@ -609,22 +664,95 @@ input {
   }
 
   .window {
-    height: 520px;
+    flex: 1 1 0;
+    height: auto;
     min-height: 0;
     border-radius: 22px;
   }
 
   .chat {
-    width: min(100% - 28px, 460px);
+    top: 62%;
+    width: min(100% - 20px, 420px);
   }
 
-  .slider-grid,
+  .composer {
+    height: 46px;
+  }
+
+  .send {
+    width: 40px;
+    height: 40px;
+  }
+
+  .dock {
+    flex: 0 0 auto;
+    max-height: 48dvh;
+    overflow: auto;
+    padding: 8px 0 calc(12px + env(safe-area-inset-bottom));
+  }
+
+  .dock-panel {
+    gap: 6px;
+  }
+
+  .wallpaper-controls {
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .wallpaper-controls::-webkit-scrollbar {
+    display: none;
+  }
+
+  .wallpaper-chips {
+    flex: none;
+    flex-wrap: nowrap;
+    min-width: max-content;
+  }
+
+  .wallpaper-chips button,
+  .upload-chip,
+  .segment button,
+  .actions button,
+  .dock-row {
+    min-height: 44px;
+  }
+
+  .wallpaper-chips button,
+  .upload-chip {
+    height: 44px;
+    flex: none;
+  }
+
+  .segment button {
+    height: 44px;
+    min-width: 84px;
+  }
+
+  .swatch {
+    width: 28px;
+    height: 28px;
+  }
+
+  .track {
+    height: 40px;
+  }
+
+  .actions button {
+    height: 44px;
+    padding: 0 16px;
+  }
+
   .wallpaper-row,
   .dock-color {
     grid-template-columns: 1fr;
   }
 
   .slider-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
     margin-left: 0;
   }
 

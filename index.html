@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Aster — wallpaper studio</title>
     <meta
       name="description"
@@ -26,7 +26,7 @@
         <p class="brand-note">Wallpaper studio</p>
       </header>
       <main class="stage window">
-      <div class="art" id="art">
+      <div class="art is-pending" id="art">
         <img id="art-photo" class="art-photo" alt="" hidden />
         <video
           id="art-video"
@@ -41,6 +41,8 @@
           hidden
         ></video>
         <canvas id="effect-canvas" class="effect-canvas" aria-hidden="true"></canvas>
+        <div class="veil" aria-hidden="true"></div>
+        <p class="drawing">Drawing…</p>
         <div class="drop-hint">Drop an image or video</div>
       </div>
       <section class="chat" id="chat" aria-label="Wallpaper chat">
