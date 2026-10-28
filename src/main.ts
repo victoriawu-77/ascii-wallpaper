@@ -18,9 +18,9 @@ const asset = (path: string): string => `${import.meta.env.BASE_URL}${path}`;
 const wallpapers: Wallpaper[] = [
   {
     kind: 'video',
-    label: 'Butterfly',
-    src: asset('wallpapers/butterfly-loop.mp4'),
-    thumb: asset('wallpapers/butterfly-poster.jpg'),
+    label: 'Meadow',
+    src: asset('wallpapers/meadow-loop.mp4'),
+    thumb: asset('wallpapers/meadow-poster.jpg'),
   },
   {
     kind: 'video',
@@ -31,24 +31,24 @@ const wallpapers: Wallpaper[] = [
   {
     kind: 'image',
     label: 'Portrait',
-    src: asset('wallpapers/meadow-portrait.jpg'),
-    thumb: asset('wallpapers/meadow-portrait.jpg'),
+    src: asset('wallpapers/portrait.jpg'),
+    thumb: asset('wallpapers/portrait.jpg'),
   },
   {
     kind: 'image',
     label: 'Horizon',
-    src: asset('wallpapers/amber-landscape.jpg'),
-    thumb: asset('wallpapers/amber-landscape.jpg'),
+    src: asset('wallpapers/horizon.jpg'),
+    thumb: asset('wallpapers/horizon.jpg'),
   },
   {
     kind: 'image',
-    label: 'Study',
-    src: asset('wallpapers/blue-abstract.jpg'),
-    thumb: asset('wallpapers/blue-abstract.jpg'),
+    label: 'Waves',
+    src: asset('wallpapers/waves.jpg'),
+    thumb: asset('wallpapers/waves.jpg'),
   },
 ];
 
-const backdropStill = asset('wallpapers/amber-landscape.jpg');
+const backdropStill = asset('wallpapers/horizon.jpg');
 
 const backdrop = document.querySelector<HTMLElement>('.hero-bg');
 const stage = document.querySelector<HTMLElement>('.stage');

@@ -136,24 +136,6 @@ input {
   background: #cfc6b8;
 }
 
-.caption {
-  position: absolute;
-  z-index: 2;
-  margin: 0;
-  pointer-events: none;
-}
-
-.caption {
-  top: 22px;
-  left: 22px;
-  color: #f7f3ea;
-  font-family: Fraunces, Georgia, serif;
-  font-size: 32px;
-  font-weight: 520;
-  letter-spacing: -0.03em;
-  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.45);
-}
-
 .drop-hint {
   position: absolute;
   inset: 0;
@@ -181,101 +163,143 @@ input {
   top: 50%;
   display: flex;
   flex-direction: column;
-  width: min(560px, calc(100% - 48px));
-  padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.66);
-  border-radius: 28px;
-  background:
-    linear-gradient(180deg, rgba(255, 252, 247, 0.62), rgba(255, 246, 236, 0.34));
-  color: #241c16;
-  box-shadow:
-    0 18px 44px rgba(40, 28, 18, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.78);
+  align-items: center;
+  gap: 10px;
+  width: min(460px, calc(100% - 48px));
   transform: translate(-50%, -50%);
-  backdrop-filter: blur(22px) saturate(1.35);
+  pointer-events: none;
+}
+
+.chat-log,
+.composer {
+  pointer-events: auto;
 }
 
 .chat-log {
-  margin: 2px 8px 10px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.glass {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.46);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0) 14%),
+    rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 12px 30px rgba(16, 12, 8, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.88),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -10px 16px rgba(28, 16, 8, 0.1);
+  backdrop-filter: blur(8px) saturate(1.65) brightness(1.08);
+  -webkit-backdrop-filter: blur(8px) saturate(1.65) brightness(1.08);
+}
+
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.18) 36%,
+    rgba(255, 255, 255, 0.06) 58%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 .chat-reply {
+  width: fit-content;
+  max-width: min(100%, 420px);
   margin: 0;
-  color: #241c16;
+  padding: 10px 16px;
+  border-radius: 18px;
+  color: #f8f4ee;
   font-size: 14px;
-  line-height: 1.4;
+  line-height: 1.45;
+  text-shadow: 0 1px 2px rgba(16, 10, 6, 0.72), 0 0 10px rgba(16, 10, 6, 0.38);
 }
 
 .composer {
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-
-.chat-brand {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
   gap: 8px;
+  width: 100%;
+  height: 52px;
+  padding: 6px 6px 6px 18px;
+  border-radius: 999px;
 }
 
-.chat-mark {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 12px;
-  background: rgba(28, 25, 22, 0.88);
-  color: #f6f1e8;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+.composer:focus-within {
+  box-shadow:
+    0 16px 36px rgba(16, 12, 8, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.32),
+    inset 0 -12px 20px rgba(36, 22, 12, 0.08),
+    0 0 0 1px rgba(255, 250, 244, 0.72),
+    0 0 0 4px rgba(20, 14, 10, 0.28);
 }
 
-.chat-name {
-  font-family: Fraunces, Georgia, serif;
-  font-size: 20px;
-  font-weight: 560;
-  letter-spacing: -0.03em;
-  line-height: 1;
+.composer input,
+.composer .send {
+  position: relative;
+  z-index: 1;
 }
 
 .composer input {
   flex: 1;
   width: 100%;
   min-width: 0;
-  height: 44px;
+  height: 40px;
   margin: 0;
-  padding: 0 14px;
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  border-radius: 999px;
-  background: rgba(255, 253, 248, 0.55);
-  color: #241c16;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #f8f4ee;
+  caret-color: #fff8ef;
+  font-size: 16px;
+  text-shadow: 0 1px 2px rgba(16, 10, 6, 0.72), 0 0 10px rgba(16, 10, 6, 0.38);
 }
 
 .composer input::placeholder {
-  color: #b3a89c;
+  color: rgba(255, 250, 244, 0.94);
+  text-shadow: 0 1px 2px rgba(16, 10, 6, 0.78), 0 0 10px rgba(16, 10, 6, 0.42);
 }
 
 .composer input:focus {
   outline: none;
-  border-color: #1c1916;
-  box-shadow: 0 0 0 3px rgba(28, 25, 22, 0.12);
 }
 
 .send {
+  display: grid;
   flex: none;
-  height: 44px;
-  padding: 0 16px;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
   border: 0;
-  border-radius: 999px;
-  background: #1c1916;
-  color: #f6f1e8;
-  font-weight: 600;
+  border-radius: 50%;
+  background: rgba(22, 18, 16, 0.82);
+  color: #f7f3ea;
   cursor: pointer;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 2px 8px rgba(16, 10, 6, 0.28);
 }
 
 .send:hover {
-  background: #312b26;
+  background: rgba(34, 28, 24, 0.92);
 }
 
 .dock {
@@ -559,9 +583,8 @@ input {
   outline-offset: 2px;
 }
 
-.composer input:focus-visible,
-.send:focus-visible {
-  outline-color: #1c1916;
+.composer input:focus-visible {
+  outline: none;
 }
 
 .noscript {
@@ -591,24 +614,7 @@ input {
   }
 
   .chat {
-    width: min(100% - 28px, 520px);
-    padding: 10px;
-  }
-
-  .composer {
-    flex-wrap: nowrap;
-  }
-
-  .chat-name {
-    font-size: 18px;
-  }
-
-  .send {
-    padding: 0 12px;
-  }
-
-  .caption {
-    font-size: 26px;
+    width: min(100% - 28px, 460px);
   }
 
   .slider-grid,
