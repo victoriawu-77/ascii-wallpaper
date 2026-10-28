@@ -1,10 +1,32 @@
 # Aster
 
-A wallpaper studio in the browser. The page is a blurred desktop of the current wallpaper, with one floating window of ASCII or ordered dither and the controls on the dark area below.
+ASCII & Dither wallpaper generator.
 
-**Live:** https://victoriawu-77.github.io/ascii-wallpaper/
+Turn any photo into a living ASCII wallpaper.
 
-**Source:** https://github.com/victoriawu-77/ascii-wallpaper
+Aster is an open-source wallpaper generator in the browser. Choose a built-in looping wallpaper or upload your own photo, and it is redrawn as moving characters. Switch between ASCII and dither, pick a palette, and save a PNG.
+
+**[Open the live demo](https://victoriawu-77.github.io/ascii-wallpaper/)**
+
+[![Aster redrawing wallpapers as ASCII and dither](media/aster-demo.gif)](media/aster-demo.mp4)
+
+Looping preview of the generator. [Watch the full video](media/aster-demo.mp4) (1080×1080, with sound), or [open the live demo](https://victoriawu-77.github.io/ascii-wallpaper/).
+
+## Features
+
+- Upload your own photo, or drop an image or video onto the window
+- ASCII and dither looks, each with its own settings
+- Palettes: Original, Meadow, Blue, Amber, Lavender, and Mono
+- One-click PNG export of the current frame
+- Video wallpapers that keep moving: Meadow and Monarch loop; Portrait, Horizon, and Waves are stills
+- Mobile-friendly layout
+- Open source — the generator is this repository
+
+## How it works
+
+A wallpaper is sampled in the browser and drawn onto a canvas, either as ASCII glyphs or as ordered dither. Meadow starts as a field of flowers; Monarch is a butterfly loop. Your file replaces the built-in source with one image or video.
+
+ASCII and dither remember their own palette, strength, and size. Save PNG downloads the frame on screen. Copy link writes the look into the address bar, so opening that URL restores the filter, palette, strength, and size.
 
 ## Run locally
 
@@ -13,26 +35,21 @@ npm install
 npm run dev
 ```
 
-Vite serves the app from the site root. The build uses a relative base, so the same `dist/` works at `/ascii-wallpaper/` and `/aster-wallpaper/`.
-
-## Build
+The dev server serves the app from the site root. To build and preview the static site:
 
 ```bash
 npm run build
+npm run preview
 ```
 
-The static site is written to `dist/`, including `.nojekyll` for GitHub Pages. Pages publishes the `gh-pages` branch from the repository root.
+`npm run build` typechecks and writes `dist/`. The Vite base is relative (`./`), so the same build works at `/ascii-wallpaper/` and at the site root.
 
-## Using it
+## Deploy
 
-The window holds the redrawn wallpaper. A short line types itself into the glass field in the center, then clears and tries the next. The animation rests while the field is focused or holds text. A reply appears in a small glass bubble above the field after you send, and it stays in the browser.
+GitHub Pages serves the `gh-pages` branch from the repository root. The live site is [victoriawu-77.github.io/ascii-wallpaper](https://victoriawu-77.github.io/ascii-wallpaper/).
 
-ASCII starts in Shadows: mask 90, strength 100, size 37, so the glyphs sit on a washed paper field. Dither starts at mask 88, strength 100, and size 15.
+Publish a build by copying `dist/` onto `gh-pages`. `public/.nojekyll` is included in that build so GitHub Pages does not pass the site through Jekyll.
 
-The dock runs in this order. Wallpaper is Meadow, Monarch, Portrait, Horizon, Waves, and one Your file control. Meadow is the flower-field loop. Monarch is the butterfly loop. Portrait, Horizon, and Waves are stills. Look is ASCII or Dither. Palette is a color map: Original leaves the picture alone, then Meadow, Blue, Amber, Lavender, and Mono. Strength and size follow. Actions are Save PNG and Copy link. ASCII and Dither remember their own values when you switch.
+## License
 
-Drop an image or video onto the window, or choose Your file. Save PNG downloads the current frame. Copy link writes filter, palette, strength, and size into the address bar so a refresh restores them.
-
-The window shows “Drawing…” on a paper field until the first effect frame is ready. A poster frame is drawn first, then the live video replaces it, so the raw picture does not sit on screen while the sample starts. On a narrow screen the canvas stays at one pixel per CSS pixel and video frames are sampled about ten times a second.
-
-While a video is playing and on screen, the effect samples each frame with `requestVideoFrameCallback`, or `requestAnimationFrame` when that callback does not arrive. Sampling pauses while the tab is hidden, the video is paused, or the stage is off screen. The video element stays under the canvas and is the source. Still images redraw when a control changes.
+This repository does not include a license file yet. Until one is added, all rights are reserved.

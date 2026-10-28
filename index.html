@@ -3,11 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Aster — wallpaper studio</title>
+    <title>Aster — ASCII &amp; Dither wallpaper generator</title>
     <meta
       name="description"
-      content="Aster redraws a looping wallpaper as ASCII or ordered dither. A chat in the center of the stage answers on this page."
+      content="ASCII &amp; Dither wallpaper generator. Turn any photo into a living ASCII wallpaper, pick a palette, and save a PNG."
     />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Aster — ASCII &amp; Dither wallpaper generator" />
+    <meta
+      property="og:description"
+      content="ASCII &amp; Dither wallpaper generator. Turn any photo into a living ASCII wallpaper, pick a palette, and save a PNG."
+    />
+    <meta property="og:url" content="https://victoriawu-77.github.io/ascii-wallpaper/" />
+    <meta property="og:image" content="https://victoriawu-77.github.io/ascii-wallpaper/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Aster — ASCII &amp; Dither wallpaper generator, ASCII mountain landscape" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Aster — ASCII &amp; Dither wallpaper generator" />
+    <meta name="twitter:description" content="ASCII &amp; Dither wallpaper generator. Turn any photo into a living ASCII wallpaper." />
+    <meta name="twitter:image" content="https://victoriawu-77.github.io/ascii-wallpaper/og.png" />
+    <meta name="twitter:image:alt" content="Aster — ASCII &amp; Dither wallpaper generator, ASCII mountain landscape" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -23,7 +39,7 @@
           </svg>
           Aster
         </a>
-        <p class="brand-note">Wallpaper studio</p>
+        <p class="brand-note">Wallpaper generator</p>
     </header>
     <main class="stage window">
       <div class="art is-pending" id="art">
@@ -72,7 +88,7 @@
     </section>
     <input id="wallpaper-file" type="file" accept="image/*,video/*" hidden />
     <noscript>
-      <p class="noscript">JavaScript is required to draw the wallpaper and the chat.</p>
+      <p class="noscript">JavaScript is required to draw the wallpaper.</p>
     </noscript>
     <script type="module" src="/src/main.ts"></script>
   </body>
