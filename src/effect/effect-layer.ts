@@ -84,6 +84,7 @@ export class EffectLayer {
   private samplerKey = '';
   private glyphCache: GlyphMetrics | null = null;
   private hasFrame = false;
+  private paintListener: (() => void) | null = null;
   private fadeRaf = 0;
   private redrawTimer = 0;
   private resizeTimer = 0;
@@ -124,6 +125,11 @@ export class EffectLayer {
     if (!this.source || this.destroyed) return;
     if (kind === 'discrete') this.queueDiscrete();
     else this.queueContinuous();
+  }
+
+  /** Fires after a frame is actually copied onto the visible canvas. */
+  onPaint(listener: () => void): void {
+    this.paintListener = listener;
   }
 
   setSource(source: MediaSource): void {
@@ -183,19 +189,23 @@ export class EffectLayer {
   private renderNow(crossfade: boolean): void {
     if (this.destroyed || !this.settings || !this.source) return;
     const fade = crossfade && this.hasFrame && !this.prefersReducedMotion();
-    this.draw(fade);
+    if (!this.draw(fade)) return;
     this.hasFrame = true;
+    this.lastPaint = performance.now();
   }
 
-  private draw(crossfade: boolean): void {
+  private draw(crossfade: boolean): boolean {
     this.stopFade();
     const settings = this.settings;
     const view = this.viewCtx;
-    if (!settings || !view) return;
+    if (!settings || !view) return false;
     const rect = this.host.getBoundingClientRect();
     const cssWidth = rect.width;
     const cssHeight = rect.height;
-    if (cssWidth < 2 || cssHeight < 2) return;
+    if (cssWidth < 2 || cssHeight < 2) return false;
+    if (!this.sourceSize()) return false;
+    const sampler = this.ensureSampler(settings.palette, cssWidth, cssHeight);
+    if (!sampler) return false;
 
     const scale = canvasScale(window.devicePixelRatio || 1, cssWidth, cssHeight);
     const pixelWidth = Math.max(1, Math.round(cssWidth * scale));
@@ -217,19 +227,16 @@ export class EffectLayer {
     }
 
     const workCtx = this.work.getContext('2d', { willReadFrequently: true });
-    if (!workCtx) return;
+    if (!workCtx) return false;
     workCtx.setTransform(1, 0, 0, 1, 0, 0);
     workCtx.clearRect(0, 0, pixelWidth, pixelHeight);
     workCtx.setTransform(scale, 0, 0, scale, 0, 0);
-
-    const sampler = this.ensureSampler(settings.palette, cssWidth, cssHeight);
-    if (!sampler) return;
 
     if (settings.filter === 'dither') {
       this.drawDither(workCtx, cssWidth, cssHeight, sampler, settings);
       this.drawMask(workCtx, cssWidth, cssHeight, settings.mask);
     } else {
-      this.drawPicture(workCtx, this.work, scale, cssWidth, cssHeight, settings.palette);
+      this.drawPicture(workCtx, cssWidth, cssHeight);
       this.drawMask(workCtx, cssWidth, cssHeight, settings.mask);
       this.drawAscii(workCtx, cssWidth, cssHeight, sampler, settings);
     }
@@ -243,9 +250,11 @@ export class EffectLayer {
         if (t < 1) this.fadeRaf = requestAnimationFrame(step);
       };
       this.fadeRaf = requestAnimationFrame(step);
-      return;
+    } else {
+      this.blit(this.work);
     }
-    this.blit(this.work);
+    this.paintListener?.();
+    return true;
   }
 
   private prepare(canvas: HTMLCanvasElement, width: number, height: number): void {
@@ -313,6 +322,7 @@ export class EffectLayer {
     const raw = new Uint8ClampedArray(frame.data);
     const lut = paletteLut(palette);
     if (lut) recolor(frame.data, lut);
+    ctx.putImageData(frame, 0, 0);
     const stats = analyzeLuminance(lut ? frame.data : raw);
     this.sampler = {
       width: fitted.width,
@@ -326,28 +336,11 @@ export class EffectLayer {
     return this.sampler;
   }
 
-  private drawPicture(
-    ctx: CanvasRenderingContext2D,
-    target: HTMLCanvasElement,
-    scale: number,
-    cssWidth: number,
-    cssHeight: number,
-    palette: PaletteId,
-  ): void {
-    const source = this.source;
-    const size = this.sourceSize();
-    if (!source || !size) return;
-    const placed = coverRect(size.width, size.height, cssWidth, cssHeight);
+  /** The underlay is the small sampler, scaled up. That skips a full-resolution readback. */
+  private drawPicture(ctx: CanvasRenderingContext2D, cssWidth: number, cssHeight: number): void {
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(source, placed.x, placed.y, placed.w, placed.h);
-    const lut = paletteLut(palette);
-    if (!lut) return;
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    const frame = ctx.getImageData(0, 0, target.width, target.height);
-    recolor(frame.data, lut);
-    ctx.putImageData(frame, 0, 0);
-    ctx.setTransform(scale, 0, 0, scale, 0, 0);
+    ctx.imageSmoothingQuality = 'low';
+    ctx.drawImage(this.samplerCanvas, 0, 0, cssWidth, cssHeight);
   }
 
   private drawMask(ctx: CanvasRenderingContext2D, cssWidth: number, cssHeight: number, value: number): void {
@@ -569,6 +562,11 @@ export class EffectLayer {
     const video = this.video;
     if (this.destroyed || !this.settings || !this.videoIsActive(video)) return;
     if (this.fadeRaf) {
+      this.scheduleVideo();
+      return;
+    }
+    const narrow = this.host.getBoundingClientRect().width < 720;
+    if (narrow && this.hasFrame && performance.now() - this.lastPaint < 110) {
       this.scheduleVideo();
       return;
     }

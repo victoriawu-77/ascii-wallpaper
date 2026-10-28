@@ -310,7 +310,9 @@ export function canvasScale(devicePixelRatio: number, width: number, height: num
   const boxWidth = Math.max(1, width);
   const boxHeight = Math.max(1, height);
   const budget = Math.sqrt((2048 * 2048) / (boxWidth * boxHeight));
-  return clamp(Math.min(devicePixelRatio || 1, budget, 1.6), 1, 1.6);
+  // Phones pay a large cost for a 2x or 3x canvas. One pixel per CSS pixel keeps the wash.
+  const cap = boxWidth < 720 ? 1 : 1.6;
+  return clamp(Math.min(devicePixelRatio || 1, budget, cap), 1, cap);
 }
 
 /** Sampling canvas, about 480px on the long side, same aspect as the box. */

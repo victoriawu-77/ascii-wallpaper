@@ -102,6 +102,9 @@ const panel = new EffectPanel(mount, {
   },
 });
 bindChat(chatEntry);
+layer.onPaint(() => {
+  artFrame.classList.remove('is-pending');
+});
 
 const query = readLook(window.location.search);
 if (query) panel.applyLook(query);
@@ -147,36 +150,90 @@ async function showWallpaper(next: number, force = false): Promise<void> {
 
 async function showVideo(item: Wallpaper, request: number): Promise<void> {
   artPhoto.hidden = true;
-  artVideo.hidden = false;
+  artFrame.classList.add('is-pending');
+  artFrame.setAttribute('aria-label', `${item.label} wallpaper`);
   prepareVideoElement(artVideo);
+  // Keep the element in layout so iOS will decode it. The canvas covers it.
+  artVideo.hidden = false;
   artVideo.src = item.src;
-  try {
-    await artVideo.play();
-  } catch {
-    // Muted autoplay can wait for a gesture. The element stays ready underneath.
-  }
+  void artVideo.play().catch(() => undefined);
+
+  const poster = loadStill(item.thumb);
+  const still = await poster;
   if (request !== requestId) return;
-  if (artVideo.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
-    await waitForMedia(artVideo, 'loadeddata');
-  }
+  if (still) layer.setSource(still);
+
+  await waitForPresentedFrame(artVideo);
   if (request !== requestId) return;
+  if (artVideo.videoWidth < 2) return;
   layer.setSource(artVideo);
   rememberPreview(artVideo, request);
 }
 
 async function showImage(item: Wallpaper, request: number): Promise<void> {
   releaseVideo();
-  artPhoto.hidden = false;
+  artFrame.classList.add('is-pending');
+  artPhoto.hidden = true;
   artPhoto.alt = `${item.label} wallpaper`;
+  artFrame.setAttribute('aria-label', `${item.label} wallpaper`);
   artPhoto.src = item.src;
   try {
     await artPhoto.decode();
   } catch {
     if (request !== requestId) return;
-    return;
+    if (artPhoto.naturalWidth < 2) return;
   }
   if (request !== requestId) return;
   layer.setSource(artPhoto);
+}
+
+function loadStill(url: string): Promise<HTMLImageElement | null> {
+  if (!url) return Promise.resolve(null);
+  return new Promise((resolve) => {
+    const image = new Image();
+    const finish = (ok: boolean): void => resolve(ok && image.naturalWidth > 1 ? image : null);
+    image.onload = () => finish(true);
+    image.onerror = () => finish(false);
+    image.src = url;
+    if (image.complete) finish(image.naturalWidth > 1);
+  });
+}
+
+function waitForPresentedFrame(video: HTMLVideoElement): Promise<void> {
+  const ready = (): boolean =>
+    video.videoWidth > 1 && video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+  const presented = (): Promise<void> => {
+    if (typeof video.requestVideoFrameCallback !== 'function') return Promise.resolve();
+    return new Promise<void>((resolve) => {
+      const timer = window.setTimeout(resolve, 450);
+      video.requestVideoFrameCallback(() => {
+        window.clearTimeout(timer);
+        resolve();
+      });
+    });
+  };
+  if (ready()) return presented();
+  return new Promise<void>((resolve) => {
+    let settled = false;
+    const finish = (): void => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(timer);
+      window.clearInterval(poll);
+      video.removeEventListener('loadeddata', check);
+      video.removeEventListener('canplay', check);
+      video.removeEventListener('playing', check);
+      resolve();
+    };
+    const check = (): void => {
+      if (ready()) finish();
+    };
+    const timer = window.setTimeout(finish, 1800);
+    const poll = window.setInterval(check, 40);
+    video.addEventListener('loadeddata', check);
+    video.addEventListener('canplay', check);
+    video.addEventListener('playing', check);
+  }).then(() => (ready() ? presented() : Promise.resolve()));
 }
 
 function releaseVideo(): void {
@@ -229,20 +286,6 @@ function snapshotCover(element: HTMLVideoElement): string {
   } catch {
     return '';
   }
-}
-
-function waitForMedia(element: HTMLVideoElement, type: string): Promise<void> {
-  return new Promise((resolve) => {
-    const finish = (): void => {
-      element.removeEventListener(type, finish);
-      element.removeEventListener('error', finish);
-      window.clearTimeout(timer);
-      resolve();
-    };
-    const timer = window.setTimeout(finish, 4000);
-    element.addEventListener(type, finish);
-    element.addEventListener('error', finish);
-  });
 }
 
 async function useFile(file: File): Promise<void> {
