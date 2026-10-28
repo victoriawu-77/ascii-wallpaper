@@ -1,14 +1,16 @@
 # Aster
 
+ASCII & Dither wallpaper generator.
+
 Turn any photo into a living ASCII wallpaper.
 
-Aster is an open-source wallpaper studio in the browser. Choose a built-in looping wallpaper or upload your own photo, and it is redrawn as moving characters. Switch between ASCII and dither, pick a palette, and save a PNG.
+Aster is an open-source wallpaper generator in the browser. Choose a built-in looping wallpaper or upload your own photo, and it is redrawn as moving characters. Switch between ASCII and dither, pick a palette, and save a PNG.
 
 **[Open the live demo](https://victoriawu-77.github.io/ascii-wallpaper/)**
 
 [![Aster redrawing wallpapers as ASCII and dither](media/aster-demo.gif)](media/aster-demo.mp4)
 
-Looping preview of the studio. [Watch the full video](media/aster-demo.mp4) (1080×1080, with sound), or [open the live demo](https://victoriawu-77.github.io/ascii-wallpaper/).
+Looping preview of the generator. [Watch the full video](media/aster-demo.mp4) (1080×1080, with sound), or [open the live demo](https://victoriawu-77.github.io/ascii-wallpaper/).
 
 ## Features
 
@@ -18,7 +20,7 @@ Looping preview of the studio. [Watch the full video](media/aster-demo.mp4) (108
 - One-click PNG export of the current frame
 - Video wallpapers that keep moving: Meadow and Monarch loop; Portrait, Horizon, and Waves are stills
 - Mobile-friendly layout
-- Open source — the studio is this repository
+- Open source — the generator is this repository
 
 ## How it works
 
