@@ -204,14 +204,15 @@ input {
 .chat {
   position: absolute;
   z-index: 5;
-  left: 50%;
-  top: 50%;
+  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 10px;
-  width: min(460px, calc(100% - 48px));
-  transform: translate(-50%, -50%);
+  width: auto;
+  margin: 0;
+  padding: 0 24px;
   pointer-events: none;
 }
 
@@ -281,8 +282,9 @@ input {
   display: flex;
   align-items: center;
   gap: 8px;
-  width: 100%;
+  width: min(460px, 100%);
   height: 52px;
+  margin-inline: auto;
   padding: 6px 6px 6px 18px;
   border-radius: 999px;
 }
@@ -671,11 +673,12 @@ input {
   }
 
   .chat {
-    top: 62%;
-    width: min(100% - 20px, 420px);
+    justify-content: center;
+    padding: 22% 16px 0;
   }
 
   .composer {
+    width: min(420px, 100%);
     height: 46px;
   }
 
