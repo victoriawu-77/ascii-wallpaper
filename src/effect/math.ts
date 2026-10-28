@@ -13,11 +13,11 @@ export const BAYER_4X4: readonly (readonly number[])[] = [
 const PALETTE_STOPS = [0, 0.4, 0.74, 1] as const;
 
 const PALETTES: Record<Exclude<PaletteId, 'original'>, readonly string[]> = {
-  meadow: ['#1C3328', '#3E6B4F', '#8FB58A', '#E7F0D8'],
-  blue: ['#10243A', '#1E4D8C', '#7EB0E0', '#E7F2FB'],
-  amber: ['#3A2410', '#C47A28', '#F0C35A', '#FBF3D6'],
-  lavender: ['#2A2140', '#6A4C9A', '#C4B0E8', '#F3EEFB'],
-  mono: ['#141414', '#4A4A4A', '#A3A3A3', '#F4F1EA'],
+  meadow: ['#2B361F', '#677D45', '#AEBA78', '#E5E1BD'],
+  blue: ['#192A4D', '#326AC5', '#A2C2F1', '#EDF3FC'],
+  amber: ['#3C200F', '#A74C15', '#EF9A46', '#F7E7CA'],
+  lavender: ['#292144', '#6552AB', '#B3A5E4', '#F0ECFB'],
+  mono: ['#151515', '#575757', '#A6A6A6', '#ECECEC'],
 };
 
 const LIGHT_MASK = [54, 20, 38] as const;

@@ -48,8 +48,6 @@ const wallpapers: Wallpaper[] = [
   },
 ];
 
-const backdropStill = asset('wallpapers/horizon.jpg');
-
 const backdrop = document.querySelector<HTMLElement>('.hero-bg');
 const stage = document.querySelector<HTMLElement>('.stage');
 const photo = document.querySelector<HTMLImageElement>('#art-photo');
@@ -70,8 +68,6 @@ const artFrame: HTMLElement = art;
 const effectCanvas: HTMLCanvasElement = canvas;
 const stageFrame: HTMLElement = stage;
 const chatEntry: HTMLElement = chat;
-
-if (backdrop) backdrop.style.backgroundImage = `url("${backdropStill}")`;
 
 for (const wallpaper of wallpapers) {
   if (wallpaper.kind !== 'image') continue;
@@ -130,6 +126,13 @@ function syncChips(): void {
   });
 }
 
+function paintBackdrop(item: Wallpaper): void {
+  if (!backdrop) return;
+  const url = item.thumb || (item.kind === 'image' ? item.src : '');
+  if (!url) return;
+  backdrop.style.backgroundImage = `url("${url.replace(/["\\]/g, '')}")`;
+}
+
 async function showWallpaper(next: number, force = false): Promise<void> {
   const resolved = (next + wallpapers.length) % wallpapers.length;
   if (!force && resolved === index) return;
@@ -137,6 +140,7 @@ async function showWallpaper(next: number, force = false): Promise<void> {
   const request = ++requestId;
   const item = wallpapers[index];
   syncChips();
+  paintBackdrop(item);
   if (item.kind === 'video') await showVideo(item, request);
   else await showImage(item, request);
 }
@@ -204,6 +208,7 @@ function rememberPreview(element: HTMLVideoElement, request: number): void {
     if (current?.custom && current.kind === 'video') {
       current.thumb = preview;
       syncChips();
+      paintBackdrop(current);
     }
   };
   capture();

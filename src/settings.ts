@@ -1,22 +1,22 @@
 import type { FilterId, FilterSettings, Look, PaletteId } from './types';
 
-/** Resting ASCII look: glyphs over a picture you can still see. */
+/** ASCII: mask 90, shadows, strength 100, size 37. Glyphs on washed paper. */
 export const ASCII_HOME: FilterSettings = {
-  mask: 58,
-  palette: 'meadow',
-  inkTone: 'dark',
-  strength: 88,
-  size: 34,
-  spacing: 0,
-};
-
-/** Resting dither look: fine Bayer cells, light veil. */
-export const DITHER_HOME: FilterSettings = {
-  mask: 32,
+  mask: 90,
   palette: 'meadow',
   inkTone: 'dark',
   strength: 100,
-  size: 18,
+  size: 37,
+  spacing: 0,
+};
+
+/** Dither: mask 88, strength 100, size 15. */
+export const DITHER_HOME: FilterSettings = {
+  mask: 88,
+  palette: 'meadow',
+  inkTone: 'dark',
+  strength: 100,
+  size: 15,
   spacing: 0,
 };
 
