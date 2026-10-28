@@ -650,13 +650,13 @@ input {
   }
 
   .hero {
-    flex: 1 1 auto;
+    flex: 1 1 0;
     min-height: 0;
-    padding: calc(8px + env(safe-area-inset-top)) 12px 8px;
+    padding: calc(6px + env(safe-area-inset-top)) 12px 6px;
   }
 
   .topbar {
-    padding-bottom: 8px;
+    padding-bottom: 6px;
   }
 
   .brand-note {
@@ -685,18 +685,24 @@ input {
   }
 
   .dock {
-    flex: 0 0 auto;
-    max-height: 48dvh;
+    flex: 0 1 auto;
+    min-height: 0;
+    max-height: 42dvh;
     overflow: auto;
-    padding: 8px 0 calc(12px + env(safe-area-inset-bottom));
+    padding: 4px 0 calc(6px + env(safe-area-inset-bottom));
   }
 
   .dock-panel {
-    gap: 6px;
+    gap: 4px;
+    min-width: 0;
+    max-width: calc(100% - 24px);
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .wallpaper-controls {
+    flex: 1 1 auto;
     flex-wrap: nowrap;
+    min-width: 0;
     max-width: 100%;
     overflow-x: auto;
     scrollbar-width: none;
@@ -712,64 +718,60 @@ input {
     min-width: max-content;
   }
 
-  .wallpaper-chips button,
-  .upload-chip,
-  .segment button,
-  .actions button,
-  .dock-row {
-    min-height: 44px;
+  .dock-row,
+  .wallpaper-row,
+  .dock-color {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+    min-height: 0;
+  }
+
+  .dock-label {
+    width: 76px;
+    font-size: 12px;
   }
 
   .wallpaper-chips button,
   .upload-chip {
-    height: 44px;
+    height: 40px;
     flex: none;
   }
 
   .segment button {
-    height: 44px;
-    min-width: 84px;
+    height: 36px;
+    min-width: 72px;
   }
 
   .swatch {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
+  }
+
+  .slider-top {
+    margin-bottom: 2px;
   }
 
   .track {
-    height: 40px;
+    height: 32px;
   }
 
   .actions button {
-    height: 44px;
-    padding: 0 16px;
-  }
-
-  .wallpaper-row,
-  .dock-color {
-    grid-template-columns: 1fr;
+    height: 36px;
+    padding: 0 12px;
   }
 
   .slider-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px 12px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 4px 12px;
+    width: 100%;
+    min-width: 0;
     margin-left: 0;
   }
 
-  .wallpaper-row,
-  .dock-color {
-    display: grid;
-    gap: 8px;
-  }
-
-  .dock-label {
-    width: auto;
-  }
-
-  .dock-row,
-  .segment {
-    flex-wrap: wrap;
-    margin-left: 0;
+  .slider {
+    min-width: 0;
   }
 }
 
